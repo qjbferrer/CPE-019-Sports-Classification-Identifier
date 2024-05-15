@@ -14,8 +14,7 @@ def resize_image(image, output_size):
     img_resized = image.resize(output_size)
     return img_resized
   
-st.write("CPE019 - Final Project Model Deployment \n\
-by Joseph Bryan M. Ferrer & John Glen Paz")
+st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
 st.header("Sports Image Classification")
 
 image_upload = st.file_uploader("Upload An Image", type=["jpeg", "png"])
