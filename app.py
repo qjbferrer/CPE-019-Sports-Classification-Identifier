@@ -28,8 +28,10 @@ if image_upload is not None:
     resized_image = resize_image(img, (224, 224))
 else:
     sample_img_choice = st.button("Use Sample Image")
-    image = [Image.open(file) for file in glob.glob("images/billiards.jpg")]
-    st.image(image, caption="Image", use_column_width=True)
+    if sample_img_choice:
+        image = Image.open("images/billiards.jpg")
+        st.image(image, caption="Sample Image", use_column_width=True)
+        resized_image = resize_image(image, (224, 224))
     
 if resized_image is not None:
     normalized_image = np.expand_dims(resized_image, axis=0)
