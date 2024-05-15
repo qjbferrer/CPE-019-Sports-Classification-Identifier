@@ -3,49 +3,23 @@ import tensorflow as tf
 import cv2
 from tensorflow.keras.models import load_model
 from utils import predict_label
-from PIL import Image
-
-@st.cache(allow_output_mutation=True)
-def load_model():
-  model=tf.keras.models.load_model('final_model.h5')
-  return model
-
-def import_and_predict(image_data, model):
-        size = (150,150)  
-        image = ImageOps.fit(image_data, size)
-        image = np.asarray(image, dtype = 'float32')
-        img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        img = img.reshape(1, img.shape[0], img.shape[1], img.shape[2])
-        img = img / 255
-        #img_resize = (cv2.resize(img, dsize=(75, 75),    interpolation=cv2.INTER_CUBIC))/255.
-        #img_reshape = img[np.newaxis,...]
-        prediction = model.predict(img)
-        return prediction
-
-import streamlit as st
-import tensorflow as tf
-import streamlit as st
-import cv2
-import glob
 from PIL import Image, ImageOps
 import numpy as np
 
 @st.cache(allow_output_mutation=True)
 def load_model():
-  model=tf.keras.models.load_model('final_model.h5')
-  return model
+    model = tf.keras.models.load_model('final_model.h5')
+    return model
 
 def import_and_predict(image_data, model):
-        size = (150,150)  
-        image = ImageOps.fit(image_data, size)
-        image = np.asarray(image, dtype = 'float32')
-        img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        img = img.reshape(1, img.shape[0], img.shape[1], img.shape[2])
-        img = img / 255
-        #img_resize = (cv2.resize(img, dsize=(75, 75),    interpolation=cv2.INTER_CUBIC))/255.
-        #img_reshape = img[np.newaxis,...]
-        prediction = model.predict(img)
-        return prediction
+    size = (150,150)  
+    image = ImageOps.fit(image_data, size)
+    image = np.asarray(image, dtype='float32')
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    img = img.reshape(1, img.shape[0], img.shape[1], img.shape[2])
+    img = img / 255
+    prediction = model.predict(img)
+    return prediction
 
 st.write("Emerging Technologies 2 by Pagatpat, Paul Gabriel and Dalangan, Katherine May")
 st.write("""
@@ -63,5 +37,6 @@ else:
     size = (150,150)  
     image = Image.open(file)
     image = ImageOps.fit(image, size)
-    st.image(image, width = image.size[0]*2)
+    st.image(image, width=image.size[0]*2)
+    model = load_model()
     prediction = import_and_predict(image, model)
