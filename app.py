@@ -29,3 +29,7 @@ if image_upload is not None:
 if resized_image is not None:
     normalized_image = np.expand_dims(resized_image, axis=0)
     detections = model.predict(normalized_image)
+    class_index = np.argmax(detections, axis=1)[0]
+    sport_name = sports_class[class_index]  # Assuming class_names is defined somewhere
+    st.success("Predicted sport: {}".format(sport_name))
+
