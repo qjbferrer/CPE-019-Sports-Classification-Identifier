@@ -5,20 +5,19 @@ from utils import predict_label
 from PIL import Image
 
 st.title("Sports Image Classification")
-
 st.write("Predict the sport that is being represented in the image.")
 
+# Use st.cache to load the model once
 @st.cache(allow_output_mutation=True)
-def load_model():
-  model=tf.keras.models.load_model('final_model.h5')
-  return model
-  
+def load_keras_model():
+    model = tf.keras.models.load_model('final_model.h5')
+    return model
+
+# Load the model once and reuse it
 model = load_keras_model()
 
 with st.form("my_form"):
-    uploaded_file = st.file_uploader(
-        "Upload an image of a sport being played:", type="jpg"
-    )
+    uploaded_file = st.file_uploader("Upload an image of a sport being played:", type="jpg")
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         label = predict_label(image, model)
@@ -26,26 +25,16 @@ with st.form("my_form"):
     submitted = st.form_submit_button("Submit")
     if submitted:
         if uploaded_file is not None:
-            image = Image.open(uploaded_file)
             st.image(image, caption="Uploaded Image", use_column_width=True)
-            st.markdown(
-                f"<h2 style='text-align: center;'>{label}</h2>",
-                unsafe_allow_html=True,
-            )
+            st.markdown(f"<h2 style='text-align: center;'>{label}</h2>", unsafe_allow_html=True)
         else:
-            st.write("Please upload file or choose sample image.")
+            st.write("Please upload an image or choose a sample image.")
 
-
-st.write(
-    "If you would not like to upload an image, you can use the sample image instead:"
-)
+st.write("If you would not like to upload an image, you can use the sample image instead:")
 sample_img_choice = st.button("Use Sample Image")
 
 if sample_img_choice:
     image = Image.open("test_cricket.jpg")
     st.image(image, caption="Image", use_column_width=True)
     label = predict_label(image, model)
-    st.markdown(
-        f"<h2 style='text-align: center;'>{label}</h2>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<h2 style='text-align: center;'>{label}</h2>", unsafe_allow_html=True)
