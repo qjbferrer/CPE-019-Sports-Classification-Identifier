@@ -1,4 +1,4 @@
-class_names=['air hockey',
+class_names = ['air hockey',
  'ampute football',
  'archery',
  'arm wrestling',
