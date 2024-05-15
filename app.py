@@ -27,7 +27,7 @@ if image_upload is not None:
     resized_image = resize_image(img, (224, 224))
     
 else:
-    sample_image_path = "billiards.joh"
+    sample_image_path = "billiards.jpg"
     sample_img = Image.open(sample_image_path)
     st.image(sample_img, caption="Here is a sample image")
     
