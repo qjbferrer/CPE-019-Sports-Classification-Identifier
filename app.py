@@ -17,5 +17,5 @@ def resize_image(image, output_size):
 st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
 st.header("Sports Image Classification")
 
-image_upload = st.file_uploader("Upload An Image", type=["jpeg", "png"])
+image_upload = st.file_uploader("Please upload an image depicting a sport in action.", type=["jpeg", "png"])
 resized_image = None
