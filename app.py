@@ -7,15 +7,13 @@ from PIL import Image
 st.title("Sports Image Classification")
 st.write("Predict the sport that is being represented in the image.")
 
-# Use st.cache to load the model once
 @st.cache(allow_output_mutation=True)
 def load_keras_model():
     model = tf.keras.models.load_model('final_model.h5')
     return model
 
-# Load the model once and reuse it
-model = load_keras_model()
-
+def import_predict():
+    
 with st.form("my_form"):
     uploaded_file = st.file_uploader("Upload an image of a sport being played:", type="jpg")
     if uploaded_file is not None:
