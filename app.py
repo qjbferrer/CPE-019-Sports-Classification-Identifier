@@ -9,7 +9,7 @@ st.title("Sports Image Classification")
 st.write("Predict the sport that is being represented in the image.")
 
 def load_model():
-  model=tf.keras.models.load_model('final_mode.h5')
+  model=tf.keras.models.load_model('final_model.h5')
   return model
 
 with st.form("my_form"):
