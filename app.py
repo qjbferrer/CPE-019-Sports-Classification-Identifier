@@ -27,7 +27,7 @@ if image_upload is not None:
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
 else:
-    image = Image.open("test_cricket.jpg")
+    image = Image.open("billiards.jpg")
     st.image(image, caption="Image", use_column_width=True)
 
     sample_image_path = "https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/images/billiards.jpg"
