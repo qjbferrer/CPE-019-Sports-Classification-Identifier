@@ -1,5 +1,6 @@
 import streamlit as st
 import tensorflow as tf
+import cv2
 from tensorflow.keras.models import load_model
 from utils import predict_label
 from PIL import Image
