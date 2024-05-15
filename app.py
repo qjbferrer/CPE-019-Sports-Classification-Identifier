@@ -4,7 +4,7 @@ import numpy as np
 import requests
 
 from io import BytesIO
-from classNames import class_names
+from classes import sports_class
 from tensorflow.keras.models import load_model
 from PIL import Image
 
