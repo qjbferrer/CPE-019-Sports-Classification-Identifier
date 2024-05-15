@@ -25,7 +25,12 @@ if image_upload is not None:
     img = Image.open(image_upload)
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
-
+    
+else:
+    sample_image_path = "billiards.joh"
+    sample_img = Image.open(sample_image_path)
+    st.image(sample_img, caption="Here is a sample image")
+    
 if resized_image is not None:
     normalized_image = np.expand_dims(resized_image, axis=0)
     detections = model.predict(normalized_image)
