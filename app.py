@@ -14,10 +14,14 @@ def load_keras_model():
     model = load_model('final_model.h5')
     return model
 
+# Load the model
+model = load_keras_model()
+
+# Function for form and prediction
 def import_and_predict(image, model):
     label = predict_label(image, model)
     return label
-    
+
 # Form for image upload and prediction
 with st.form("my_form"):
     uploaded_file = st.file_uploader("Upload an image of a sport being played:", type="jpg")
@@ -37,4 +41,7 @@ st.write("If you would not like to upload an image, you can use the sample image
 sample_img_choice = st.button("Use Sample Image")
 
 if sample_img_choice:
-    ima
+    image = Image.open("test_cricket.jpg")
+    st.image(image, caption="Sample Image", use_column_width=True)
+    label = import_and_predict(image, model)
+    st.markdown(f"<h2 style='text-align: center;'>{label}</h2>", unsafe_allow_html=True)
