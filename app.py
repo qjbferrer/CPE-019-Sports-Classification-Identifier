@@ -20,3 +20,8 @@ st.write("A deep learning model that uses EfficientNetB0 which is a convolutiona
 
 image_upload = st.file_uploader("Please upload an image depicting a sport in action.", type=["jpeg", "png"])
 resized_image = None
+
+if image_upload is not None:
+    img = Image.open(image_upload)
+    st.image(img, caption="Uploaded Image")
+    resized_image = resize_image(img, (224, 224))
