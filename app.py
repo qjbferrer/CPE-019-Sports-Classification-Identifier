@@ -16,7 +16,7 @@ def resize_image(image, output_size):
   
 st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
 st.header("Sports Image Classification")
-st.description("A deep learning model that uses EfficientNetB0 which is a convolutional neural network (CNN) architecture that predicts 100 classes of different sports.")
+st.write("A deep learning model that uses EfficientNetB0 which is a convolutional neural network (CNN) architecture that predicts 100 classes of different sports.")
 
 image_upload = st.file_uploader("Please upload an image depicting a sport in action.", type=["jpeg", "png"])
 resized_image = None
