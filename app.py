@@ -8,7 +8,7 @@ from io import BytesIO
 from classNames import class_names
 
 # Load the trained model
-model = load_model("./models/Best_Model.h5")
+model = load_model("finalbest_model.h5")
 
 
 def resize_image(image, output_size):
