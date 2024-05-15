@@ -1,42 +1,46 @@
 import streamlit as st
-import tensorflow as tf
-import cv2
 from tensorflow.keras.models import load_model
 from utils import predict_label
-from PIL import Image, ImageOps
-import numpy as np
+from PIL import Image
 
-@st.cache(allow_output_mutation=True)
-def load_model():
-    model = tf.keras.models.load_model('best_model.h5')
-    return model
+st.title("Sports Image Classification")
 
-def import_and_predict(image_data, model):
-    size = (150,150)  
-    image = ImageOps.fit(image_data, size)
-    image = np.asarray(image, dtype='float32')
-    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    img = img.reshape(1, img.shape[0], img.shape[1], img.shape[2])
-    img = img / 255
-    prediction = model.predict(img)
-    return prediction
+st.write("Predict the sport that is being represented in the image.")
 
-st.write("Emerging Technologies 2 by Pagatpat, Paul Gabriel and Dalangan, Katherine May")
-st.write("""
-         # Intel Image Classification
-         \nA demonstration on a Predictive Convolutional Neural Network with a 66% accuracy that uses
-         images of natural scenes from a Datahack challenge by Intel.
-         """
-         )
+model = load_model("best_model.h5")
 
-file = st.file_uploader("Upload images that either classify as an image of a mountain, street, glacier, building, sea, or a forest (PNG or JPG only)", type=["jpg", "png"])
-st.set_option('deprecation.showfileUploaderEncoding', False)
-if file is None:
-    st.text("Please upload an image file")
-else:
-    size = (150,150)  
-    image = Image.open(file)
-    image = ImageOps.fit(image, size)
-    st.image(image, width=image.size[0]*2)
-    model = load_model()
-    prediction = import_and_predict(image, model)
+
+with st.form("my_form"):
+    uploaded_file = st.file_uploader(
+        "Upload an image of a sport being played:", type="jpg"
+    )
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        label = predict_label(image, model)
+
+    submitted = st.form_submit_button("Submit")
+    if submitted:
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Uploaded Image", use_column_width=True)
+            st.markdown(
+                f"<h2 style='text-align: center;'>{label}</h2>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.write("Please upload file or choose sample image.")
+
+
+st.write(
+    "If you would not like to upload an image, you can use the sample image instead:"
+)
+sample_img_choice = st.button("Use Sample Image")
+
+if sample_img_choice:
+    image = Image.open("test_cricket.jpg")
+    st.image(image, caption="Image", use_column_width=True)
+    label = predict_label(image, model)
+    st.markdown(
+        f"<h2 style='text-align: center;'>{label}</h2>",
+        unsafe_allow_html=True,
+    )
