@@ -20,13 +20,16 @@ st.write("A deep learning model that uses EfficientNetB0 which is a convolutiona
 
 image_upload = st.file_uploader("Please upload an image depicting a sport in action.", type=["jpeg", "png"])
 resized_image = None
+sample_img_choice = st.button("Use Sample Image")
 
 if image_upload is not None:
     img = Image.open(image_upload)
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
-    
 else:
+    image = Image.open("test_cricket.jpg")
+    st.image(image, caption="Image", use_column_width=True)
+
     sample_image_path = "https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/images/billiards.jpg"
     sample_img = Image.open(sample_image_path)
     st.image(sample_img, caption="Here is a sample image")
@@ -38,3 +41,13 @@ if resized_image is not None:
     sport_name = sports_class[class_index]  # Assuming class_names is defined somewhere
     st.success("Predicted sport: {}".format(sport_name))
 
+
+
+if sample_img_choice:
+    image = Image.open("test_cricket.jpg")
+    st.image(image, caption="Image", use_column_width=True)
+    label = predict_label(image, model)
+    st.markdown(
+        f"<h2 style='text-align: center;'>{label}</h2>",
+        unsafe_allow_html=True,
+    )
