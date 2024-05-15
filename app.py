@@ -27,7 +27,8 @@ if image_upload is not None:
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
 else:
-    sample_img_choice = st.button("Use Sample Image")
+    st.write("If you prefer not to upload an image, you have the option to use the provided sample image instead.")
+    sample_img_choice = st.button("Sample Image")
     if sample_img_choice:
         image = Image.open("images/billiards.jpg")
         st.image(image, caption="Sample Image", use_column_width=True)
