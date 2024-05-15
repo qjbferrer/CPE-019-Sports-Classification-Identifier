@@ -12,6 +12,8 @@ st.write("Predict the sport that is being represented in the image.")
 def load_model():
   model=tf.keras.models.load_model('final_model.h5')
   return model
+  
+model = load_keras_model()
 
 with st.form("my_form"):
     uploaded_file = st.file_uploader(
