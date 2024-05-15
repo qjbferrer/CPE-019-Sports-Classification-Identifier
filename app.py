@@ -1,4 +1,5 @@
 import streamlit as st
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from utils import predict_label
 from PIL import Image
