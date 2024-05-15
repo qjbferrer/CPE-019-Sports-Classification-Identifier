@@ -47,18 +47,7 @@ def import_and_predict(image_data, model):
         prediction = model.predict(img)
         return prediction
 
-def display_images():
-  images = [Image.open(file) for file in glob.glob("display/*.jpg")]
-  row_size = len(images)
-  grid = st.columns(row_size)
-  col = 0
-  for image in images:
-      with grid[col]:
-          st.image(image)
-      col = (col + 1) % row_size
-
 st.write("Emerging Technologies 2 by Pagatpat, Paul Gabriel and Dalangan, Katherine May")
-display_images()
 st.write("""
          # Intel Image Classification
          \nA demonstration on a Predictive Convolutional Neural Network with a 66% accuracy that uses
