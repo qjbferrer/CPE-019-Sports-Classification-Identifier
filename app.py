@@ -8,7 +8,7 @@ import numpy as np
 
 @st.cache(allow_output_mutation=True)
 def load_model():
-    model = tf.keras.models.load_model('final_model.h5')
+    model = tf.keras.models.load_model('best_model.h5')
     return model
 
 def import_and_predict(image_data, model):
