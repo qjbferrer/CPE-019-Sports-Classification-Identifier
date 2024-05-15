@@ -37,14 +37,3 @@ if resized_image is not None:
     class_index = np.argmax(detections, axis=1)[0]
     sport_name = sports_class[class_index]  # Assuming class_names is defined somewhere
     st.success("Predicted sport: {}".format(sport_name))
-
-
-
-if sample_img_choice:
-    image = Image.open("test_cricket.jpg")
-    st.image(image, caption="Image", use_column_width=True)
-    label = predict_label(image, model)
-    st.markdown(
-        f"<h2 style='text-align: center;'>{label}</h2>",
-        unsafe_allow_html=True,
-    )
