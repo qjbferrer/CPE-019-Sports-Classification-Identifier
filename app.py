@@ -14,14 +14,6 @@ def load_keras_model():
     model = load_model('final_model.h5')
     return model
 
-# Load the model
-model = load_keras_model()
-
-# Function for form and prediction
-def import_and_predict(image, model):
-    label = predict_label(image, model)
-    return label
-
 # Form for image upload and prediction
 with st.form("my_form"):
     uploaded_file = st.file_uploader("Upload an image of a sport being played:", type="jpg")
