@@ -2,6 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 import requests
+import glob
 
 from io import BytesIO
 from classes import sports_class
@@ -27,7 +28,7 @@ if image_upload is not None:
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
 else:
-    image = Image.open("https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/images/billiards.jpg")
+    image = [Image.open(file) for file in glob.glob("display/*.jpg")]
     st.image(image, caption="Image", use_column_width=True)
     
 if resized_image is not None:
