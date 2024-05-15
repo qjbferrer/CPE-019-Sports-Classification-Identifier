@@ -27,12 +27,8 @@ if image_upload is not None:
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
 else:
-    image = Image.open("billiards.jpg")
+    image = Image.open("https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/images/billiards.jpg")
     st.image(image, caption="Image", use_column_width=True)
-
-    sample_image_path = "https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/images/billiards.jpg"
-    sample_img = Image.open(sample_image_path)
-    st.image(sample_img, caption="Here is a sample image")
     
 if resized_image is not None:
     normalized_image = np.expand_dims(resized_image, axis=0)
