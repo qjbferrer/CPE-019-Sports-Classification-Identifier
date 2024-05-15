@@ -7,7 +7,7 @@ st.title("Sports Image Classification")
 
 st.write("Predict the sport that is being represented in the image.")
 
-model = load_model("best_model.h5")
+model = load_model("finalbest_model.h5")
 
 
 with st.form("my_form"):
