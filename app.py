@@ -7,3 +7,5 @@ from io import BytesIO
 from classNames import class_names
 from tensorflow.keras.models import load_model
 from PIL import Image
+
+model = load_model("best_model.h5")
