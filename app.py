@@ -28,7 +28,7 @@ if image_upload is not None:
     st.image(img, caption="Uploaded Image")
     resized_image = resize_image(img, (224, 224))
 else:
-    image = [Image.open(file) for file in glob.glob("display/*.jpg")]
+    image = [Image.open(file) for file in glob.glob("images/billiards.jpg")]
     st.image(image, caption="Image", use_column_width=True)
     
 if resized_image is not None:
