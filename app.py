@@ -1,78 +1,48 @@
 import streamlit as st
-import tensorflow as tf
 import numpy as np
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.applications import EfficientNetB0
-from PIL import Image
+from tensorflow.keras.preprocessing import image
+import pickle
 
-# Load class names from your saved training (or hardcode sports_class)
-from classes import sports_class  
-NUM_CLASSES = len(sports_class)  # matches your dataset
+# ---------------------------
+# Load model and class names
+# ---------------------------
+@st.cache_resource
+def load_model_and_classes():
+    # Load the entire model (not just weights)
+    model = keras.models.load_model("image_classifier_best.h5")
 
-# ========================
-# Rebuild trained model architecture
-# ========================
-def build_model(num_classes):
-    base_model = EfficientNetB0(
-        weights=None,  # don't load imagenet here since weights will come from .h5
-        include_top=False,
-        input_shape=(224, 224, 3)
-    )
-    
-    inputs = keras.Input(shape=(224,224,3))
-    x = base_model(inputs, training=False)
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dropout(0.3)(x)
-    x = layers.Dense(512, activation='relu', kernel_regularizer=keras.regularizers.l2(0.001))(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Dropout(0.5)(x)
-    outputs = layers.Dense(num_classes, activation='softmax')(x)
-    
-    model = keras.Model(inputs, outputs)
-    return model
+    # Load the class names saved during training
+    with open("class_names.pkl", "rb") as f:
+        class_names = pickle.load(f)
 
-# Build model and load weights
-model = build_model(NUM_CLASSES)
-model.load_weights("best_model.h5")  # load only weights
+    return model, class_names
 
-# ========================
-# Preprocessing function
-# ========================
-def preprocess_image(image, target_size=(224, 224)):
-    img = image.convert("RGB")                           # force 3 channels
-    img = img.resize(target_size)
-    img_array = np.array(img).astype("float32") / 255.0  # normalize
-    img_array = np.expand_dims(img_array, axis=0)        # (1,224,224,3)
-    return img_array
+model, class_names = load_model_and_classes()
 
-# ========================
-# Streamlit UI
-# ========================
-st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
-st.header("Sports Image Classification")
-st.write("A deep learning model that uses EfficientNetB0 to classify images into 100 different sports.")
+# ---------------------------
+# App UI
+# ---------------------------
+st.title("🏅 Sports Image Classifier")
+st.write("Upload a sports image and the model will classify it.")
 
-image_upload = st.file_uploader("Upload a sports image", type=["jpeg", "jpg", "png"])
-image_to_predict = None
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-if image_upload is not None:
-    img = Image.open(image_upload).convert("RGB")
-    st.image(img, caption="Uploaded Image")
-    image_to_predict = img
-else:
-    st.write("Or try with the sample image:")
-    if st.button("Use Sample Image"):
-        img = Image.open("images/billiards.jpg").convert("RGB")
-        st.image(img, caption="Sample Image", use_column_width=True)
-        image_to_predict = img
+if uploaded_file is not None:
+    # Load and preprocess image
+    img = image.load_img(uploaded_file, target_size=(224, 224))
+    img_array = image.img_to_array(img) / 255.0   # normalize like in training
+    img_array = np.expand_dims(img_array, axis=0)
 
-# ========================
-# Prediction
-# ========================
-if image_to_predict is not None:
-    processed_img = preprocess_image(image_to_predict)
-    detections = model.predict(processed_img)
-    class_index = np.argmax(detections, axis=1)[0]
-    sport_name = sports_class[class_index]
-    st.success(f"Predicted sport: {sport_name}")
+    # Make prediction
+    predictions = model.predict(img_array)
+    predicted_class = np.argmax(predictions[0])
+    confidence = float(np.max(predictions[0]))
+
+    # Show results
+    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+    st.write(f"**Prediction:** {class_names[predicted_class]}")
+    st.write(f"**Confidence:** {confidence:.2f}")
+
+    # Debug (optional)
+    st.write("🔎 Raw probabilities:", predictions[0])
