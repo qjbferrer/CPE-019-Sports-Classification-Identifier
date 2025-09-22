@@ -10,20 +10,20 @@ import requests
 @st.cache_resource
 def load_model_and_classes():
     # Load the entire model (not just weights)
-    model = keras.models.load_model("image_classifier_best.h5")
+    model = keras.models.load_model("best_model.h5")
 
-    # Load the class names from GitHub classes.py
-    github_url = "https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/blob/main/classes.py"
+    # Load the sports_class list from GitHub classes.py
+    github_url = "https://github.com/qjbferrer/CPE-019-Sports-Classification-Identifier/main/classes.py"
     response = requests.get(github_url)
     if response.status_code != 200:
         raise Exception("Could not fetch classes.py from GitHub")
 
-    # Execute the code to access variables inside classes.py
+    # Execute the code to extract sports_class
     local_vars = {}
     exec(response.text, {}, local_vars)
 
-    # Assuming classes.py contains: class_names = ["football", "basketball", ...]
-    class_names = local_vars["class_names"]
+    # Assign sports_class from classes.py
+    class_names = local_vars["sports_class"]
 
     return model, class_names
 
