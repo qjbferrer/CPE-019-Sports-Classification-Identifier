@@ -10,19 +10,32 @@ import requests
 # ---------------------------
 @st.cache_resource
 def load_model_and_classes():
-    # Load the trained model
-    model = keras.models.load_model("best_model.h5")
-
-    # Fetch class names from GitHub (raw file, not HTML page)
+    # --- Fetch class names from GitHub first ---
     github_url = "https://raw.githubusercontent.com/qjbferrer/CPE-019-Sports-Classification-Identifier/main/classes.py"
     response = requests.get(github_url)
     if response.status_code != 200:
         raise Exception("Could not fetch classes.py from GitHub")
 
-    # Execute the code inside classes.py to extract sports_class
     local_vars = {}
     exec(response.text, {}, local_vars)
     class_names = local_vars["sports_class"]
+    num_classes = len(class_names)
+
+    # --- Rebuild EfficientNetB0 with RGB input ---
+    base_model = keras.applications.EfficientNetB0(
+        weights=None,
+        input_shape=(224, 224, 3),
+        include_top=False
+    )
+
+    # Add classification head
+    x = keras.layers.GlobalAveragePooling2D()(base_model.output)
+    x = keras.layers.Dense(128, activation="relu")(x)
+    output = keras.layers.Dense(num_classes, activation="softmax")(x)
+    model = keras.Model(inputs=base_model.input, outputs=output)
+
+    # Load weights but skip mismatched layers (fixes grayscale vs RGB issue)
+    model.load_weights("best_model.h5", by_name=True, skip_mismatch=True)
 
     return model, class_names
 
@@ -38,7 +51,7 @@ st.write("Upload a sports image and the model will classify it.")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Ensure image is converted to RGB (fix for shape mismatch)
+    # Ensure image is converted to RGB
     img = Image.open(uploaded_file).convert("RGB")
     img = img.resize((224, 224))
 
@@ -59,3 +72,8 @@ if uploaded_file is not None:
     # Debug (optional)
     with st.expander("🔎 Raw probabilities"):
         st.write(predictions[0])
+
+    # Warn about skipped weights
+    st.warning("⚠️ Model loaded with skip_mismatch=True. "
+               "Some weights were skipped due to shape mismatch, "
+               "so results may be less accurate.")
