@@ -1,11 +1,15 @@
 import streamlit as st
 from tensorflow.keras.models import load_model
 import tensorflow as tf
+import numpy as np
+from classes import sports_class
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.applications import EfficientNetB0
 from PIL import Image
 import numpy as np
 import requests
 from io import BytesIO
-from classNames import class_names
 
 # Load the trained model
 model = load_model("./images/best_model.h5")
