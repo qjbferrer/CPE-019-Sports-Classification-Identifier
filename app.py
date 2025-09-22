@@ -10,7 +10,7 @@ import pickle
 @st.cache_resource
 def load_model_and_classes():
     # Load the entire model (not just weights)
-    model = keras.models.load_model("image_classifier_best.h5")
+    model = keras.models.load_model("best_model.h5")
 
     # Load the class names saved during training
     with open("class_names.pkl", "rb") as f:
