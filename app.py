@@ -12,7 +12,7 @@ import requests
 from io import BytesIO
 
 # Load the trained model
-model = load_model("./images/best_model.h5")
+model = load_model("./best_model.h5")
 
 
 def resize_image(image, output_size):
