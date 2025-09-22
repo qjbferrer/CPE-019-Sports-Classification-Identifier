@@ -5,44 +5,40 @@ from classes import sports_class
 from tensorflow.keras.models import load_model
 from PIL import Image
 
-# Load your trained model
+# Load trained model
 model = load_model("best_model.h5")
 
-def resize_image(image, output_size):
-    # Convert to grayscale ("L") before resizing
-    img_resized = image.convert("L")
-    img_resized = img_resized.resize(output_size)
-    return img_resized
+def preprocess_image(image, target_size=(224, 224)):
+    # Ensure image is RGB
+    img = image.convert("RGB")
+    img = img.resize(target_size)
+    img_array = np.array(img).astype("float32") / 255.0  # normalize
+    img_array = np.expand_dims(img_array, axis=0)       # add batch dim (1, H, W, 3)
+    return img_array
 
 st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
 st.header("Sports Image Classification")
-st.write("A deep learning model that uses EfficientNetB0 trained on grayscale images to predict 100 classes of different sports.")
+st.write("A deep learning model that uses EfficientNetB0 trained on RGB images to predict 100 classes of different sports.")
 
-# Upload or use sample image
+# Upload or sample image
 image_upload = st.file_uploader("Please upload an image depicting a sport in action.", type=["jpeg", "png"])
-resized_image = None
+image_to_predict = None
 
 if image_upload is not None:
-    img = Image.open(image_upload).convert("L")  # force grayscale
+    img = Image.open(image_upload).convert("RGB")
     st.image(img, caption="Uploaded Image")
-    resized_image = resize_image(img, (224, 224))
+    image_to_predict = img
 else:
     st.write("If you prefer not to upload an image, you have the option to use the provided sample image below.")
     if st.button("Sample Image"):
-        image = Image.open("images/billiards.jpg").convert("L")  # force grayscale
-        st.image(image, caption="Sample Image", use_column_width=True)
-        resized_image = resize_image(image, (224, 224))
+        img = Image.open("images/billiards.jpg").convert("RGB")
+        st.image(img, caption="Sample Image", use_column_width=True)
+        image_to_predict = img
 
-# Prediction
-if resized_image is not None:
-    # Convert to array and normalize
-    resized_image = np.array(resized_image).astype("float32") / 255.0
-    # Add channel dimension (H, W, 1)
-    resized_image = np.expand_dims(resized_image, axis=-1)
-    # Add batch dimension (1, H, W, 1)
-    normalized_image = np.expand_dims(resized_image, axis=0)
-
-    detections = model.predict(normalized_image)
+# Run prediction
+if image_to_predict is not None:
+    processed_img = preprocess_image(image_to_predict, (224, 224))
+    detections = model.predict(processed_img)
     class_index = np.argmax(detections, axis=1)[0]
     sport_name = sports_class[class_index]
     st.success(f"Predicted sport: {sport_name}")
