@@ -1,22 +1,14 @@
+import streamlit as st
 import numpy as np
 from classes import sports_class
 from tensorflow.keras.models import load_model
-from tensorflow.keras.applications import EfficientNetB0
 from PIL import Image
 
-# Build the same model architecture you used in training
-model = EfficientNetB0(
-    weights=None,            # No pretrained weights
-    input_shape=(224, 224, 3), # Match training input shape
-    classes=len(sports_class)  # Number of classes in your dataset
-)
-
-# Load the trained weights
-model.load_weights("best_model.h5")
+# Load the full trained model
+model = load_model("best_model.h5")
 
 def resize_image(image, output_size):
     return image.resize(output_size)
-
 
 st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
 st.header("Sports Image Classification")
@@ -46,3 +38,6 @@ if resized_image is not None:
     normalized_image = np.expand_dims(normalized_image, axis=0)  # Shape: (1, 224, 224, 3)
 
     detections = model.predict(normalized_image)
+    predicted_class = sports_class[np.argmax(detections)]
+
+    st.write(f"### Predicted Sport: **{predicted_class}**")
