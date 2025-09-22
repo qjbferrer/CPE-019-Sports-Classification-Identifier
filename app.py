@@ -4,7 +4,7 @@ from classes import sports_class
 from tensorflow.keras.models import load_model
 from PIL import Image
 
-# Load the full trained model
+# Load the full trained model (saved with model.save)
 model = load_model("best_model.h5")
 
 def resize_image(image, output_size):
@@ -39,5 +39,6 @@ if resized_image is not None:
 
     detections = model.predict(normalized_image)
     predicted_class = sports_class[np.argmax(detections)]
+    confidence = np.max(detections) * 100
 
-    st.write(f"### Predicted Sport: **{predicted_class}**")
+    st.write(f"### Predicted Sport: **{predicted_class}** ({confidence:.2f}% confidence)")
