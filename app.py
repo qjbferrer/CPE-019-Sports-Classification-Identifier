@@ -34,7 +34,7 @@ def build_model(num_classes):
 
 # Build model and load weights
 model = build_model(NUM_CLASSES)
-model.load_weights("image_classifier_best.h5")  # load only weights
+model.load_weights("best_model.h5")  # load only weights
 
 # ========================
 # Preprocessing function
