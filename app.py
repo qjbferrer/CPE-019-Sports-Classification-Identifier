@@ -1,55 +1,78 @@
 import streamlit as st
-from tensorflow.keras.models import load_model
 import tensorflow as tf
 import numpy as np
-from classes import sports_class
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow import keras
+from tensorflow.keras import layers
 from tensorflow.keras.applications import EfficientNetB0
 from PIL import Image
-import numpy as np
-import requests
-from io import BytesIO
 
-# Load the trained model
-model = load_model("./best_model.h5")
+# Load class names from your saved training (or hardcode sports_class)
+from classes import sports_class  
+NUM_CLASSES = len(sports_class)  # matches your dataset
 
+# ========================
+# Rebuild trained model architecture
+# ========================
+def build_model(num_classes):
+    base_model = EfficientNetB0(
+        weights=None,  # don't load imagenet here since weights will come from .h5
+        include_top=False,
+        input_shape=(224, 224, 3)
+    )
+    
+    inputs = keras.Input(shape=(224,224,3))
+    x = base_model(inputs, training=False)
+    x = layers.GlobalAveragePooling2D()(x)
+    x = layers.Dropout(0.3)(x)
+    x = layers.Dense(512, activation='relu', kernel_regularizer=keras.regularizers.l2(0.001))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.5)(x)
+    outputs = layers.Dense(num_classes, activation='softmax')(x)
+    
+    model = keras.Model(inputs, outputs)
+    return model
 
-def resize_image(image, output_size):
-    img_resized = image.resize(output_size)
-    return img_resized
+# Build model and load weights
+model = build_model(NUM_CLASSES)
+model.load_weights("image_classifier_best.h5")  # load only weights
 
+# ========================
+# Preprocessing function
+# ========================
+def preprocess_image(image, target_size=(224, 224)):
+    img = image.convert("RGB")                           # force 3 channels
+    img = img.resize(target_size)
+    img_array = np.array(img).astype("float32") / 255.0  # normalize
+    img_array = np.expand_dims(img_array, axis=0)        # (1,224,224,3)
+    return img_array
 
-st.header("Upload a Image")
+# ========================
+# Streamlit UI
+# ========================
+st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
+st.header("Sports Image Classification")
+st.write("A deep learning model that uses EfficientNetB0 to classify images into 100 different sports.")
 
-option = st.radio("Choose Image Input Method", ("Upload Image", "Provide URL"))
+image_upload = st.file_uploader("Upload a sports image", type=["jpeg", "jpg", "png"])
+image_to_predict = None
 
-resized_image = None
+if image_upload is not None:
+    img = Image.open(image_upload).convert("RGB")
+    st.image(img, caption="Uploaded Image")
+    image_to_predict = img
+else:
+    st.write("Or try with the sample image:")
+    if st.button("Use Sample Image"):
+        img = Image.open("images/billiards.jpg").convert("RGB")
+        st.image(img, caption="Sample Image", use_column_width=True)
+        image_to_predict = img
 
-
-if option == "Upload Image":
-    image_upload = st.file_uploader("Upload An Image", type=["jpeg", "png"])
-    if image_upload is not None:
-        img = Image.open(image_upload)
-        st.image(img, caption="Real Image")
-        resized_image = resize_image(img, (224, 224))
-elif option == "Provide URL":
-    image_url = st.text_input("Enter Image URL")
-    btn=st.button("Predict Image")
-    if btn:
-        if image_url:
-            try:
-                response = requests.get(image_url)
-                img = Image.open(BytesIO(response.content))
-                st.image(img, caption="Real Image")
-                resized_image = resize_image(img, (224, 224))
-            except Exception as e:
-                st.error("Error downloading image from URL:", e)
-                resized_image = None
-
-if resized_image is not None:
-    normalized_image_with_batch = np.expand_dims(resized_image, axis=0)
-    detections = model.predict(normalized_image_with_batch)
+# ========================
+# Prediction
+# ========================
+if image_to_predict is not None:
+    processed_img = preprocess_image(image_to_predict)
+    detections = model.predict(processed_img)
     class_index = np.argmax(detections, axis=1)[0]
-    sport_name = class_names[class_index]
-    st.success("Predicted sport: {}".format(sport_name))
+    sport_name = sports_class[class_index]
+    st.success(f"Predicted sport: {sport_name}")
