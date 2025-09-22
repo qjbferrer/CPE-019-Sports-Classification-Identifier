@@ -1,79 +1,48 @@
-import streamlit as st
 import numpy as np
-from tensorflow import keras
-from tensorflow.keras.preprocessing import image
+from classes import sports_class
+from tensorflow.keras.models import load_model
+from tensorflow.keras.applications import EfficientNetB0
 from PIL import Image
-import requests
 
-# ---------------------------
-# Load model and class names
-# ---------------------------
-@st.cache_resource
-def load_model_and_classes():
-    # --- Fetch class names from GitHub first ---
-    github_url = "https://raw.githubusercontent.com/qjbferrer/CPE-019-Sports-Classification-Identifier/main/classes.py"
-    response = requests.get(github_url)
-    if response.status_code != 200:
-        raise Exception("Could not fetch classes.py from GitHub")
+# Build the same model architecture you used in training
+model = EfficientNetB0(
+    weights=None,            # No pretrained weights
+    input_shape=(224, 224, 3), # Match training input shape
+    classes=len(sports_class)  # Number of classes in your dataset
+)
 
-    local_vars = {}
-    exec(response.text, {}, local_vars)
-    class_names = local_vars["sports_class"]
-    num_classes = len(class_names)
+# Load the trained weights
+model.load_weights("best_model.h5")
 
-    # --- Rebuild EfficientNetB0 with RGB input ---
-    base_model = keras.applications.EfficientNetB0(
-        weights=None,
-        input_shape=(224, 224, 3),
-        include_top=False
-    )
-
-    # Add classification head
-    x = keras.layers.GlobalAveragePooling2D()(base_model.output)
-    x = keras.layers.Dense(128, activation="relu")(x)
-    output = keras.layers.Dense(num_classes, activation="softmax")(x)
-    model = keras.Model(inputs=base_model.input, outputs=output)
-
-    # Load weights but skip mismatched layers (fixes grayscale vs RGB issue)
-    model.load_weights("best_model.h5", by_name=True, skip_mismatch=True)
-
-    return model, class_names
+def resize_image(image, output_size):
+    return image.resize(output_size)
 
 
-model, class_names = load_model_and_classes()
+st.write("CPE019 - Final Project Model Deployment by Joseph Bryan M. Ferrer & John Glen Paz")
+st.header("Sports Image Classification")
+st.write("A deep learning model that uses EfficientNetB0, a convolutional neural network (CNN) architecture, to predict 100 classes of different sports.")
 
-# ---------------------------
-# App UI
-# ---------------------------
-st.title("🏅 Sports Image Classifier")
-st.write("Upload a sports image and the model will classify it.")
+image_upload = st.file_uploader(
+    "Please upload an image depicting a sport in action.",
+    type=["jpeg", "png", "jpg"]
+)
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+resized_image = None
 
-if uploaded_file is not None:
-    # Ensure image is converted to RGB
-    img = Image.open(uploaded_file).convert("RGB")
-    img = img.resize((224, 224))
+if image_upload is not None:
+    img = Image.open(image_upload).convert("RGB")  # Ensure RGB
+    st.image(img, caption="Uploaded Image")
+    resized_image = resize_image(img, (224, 224))
+else:
+    st.write("If you prefer not to upload an image, you have the option to use the provided sample image below.")
+    if st.button("Sample Image"):
+        image = Image.open("images/billiards.jpg").convert("RGB")  # Ensure RGB
+        st.image(image, caption="Sample Image", use_column_width=True)
+        resized_image = resize_image(image, (224, 224))
 
-    # Preprocess
-    img_array = image.img_to_array(img) / 255.0   # normalize
-    img_array = np.expand_dims(img_array, axis=0)
+if resized_image is not None:
+    # Convert to NumPy array and normalize
+    normalized_image = np.array(resized_image) / 255.0
+    normalized_image = np.expand_dims(normalized_image, axis=0)  # Shape: (1, 224, 224, 3)
 
-    # Predict
-    predictions = model.predict(img_array)
-    predicted_class = np.argmax(predictions[0])
-    confidence = float(np.max(predictions[0]))
-
-    # Show results
-    st.image(img, caption="Uploaded Image", use_container_width=True)
-    st.write(f"**Prediction:** {class_names[predicted_class]}")
-    st.write(f"**Confidence:** {confidence:.2f}")
-
-    # Debug (optional)
-    with st.expander("🔎 Raw probabilities"):
-        st.write(predictions[0])
-
-    # Warn about skipped weights
-    st.warning("⚠️ Model loaded with skip_mismatch=True. "
-               "Some weights were skipped due to shape mismatch, "
-               "so results may be less accurate.")
+    detections = model.predict(normalized_image)
